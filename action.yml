@@ -2,21 +2,30 @@ name: 'Maven Deploy Central'
 description: 'Deploy java package to Maven central'
 inputs:
   NEXUS_MAVEN_REPO:
+    default: unused
     required: true
   NEXUS_USERNAME:
+    default: unused
     required: true
   NEXUS_PASSWORD:
+    default: unused
     required: true
   ZEPBEN_GPG_KEY:
+    description: "GPG key ID"
     required: true
   OSSRH_USERNAME:
+    description: "Maven central username"
     required: true
   OSSRH_PASSWORD:
+    description: "Maven central password"
     required: true
   GPG_KEY_ID:
+    description: "Zepben GPG key ID"
     required: true
   GPG_KEY_PASSWORD:
+    description: "Zepben GPG key password"
     required: true
+
 runs:
   using: "composite"
   steps: 
