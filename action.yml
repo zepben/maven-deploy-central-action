@@ -25,6 +25,10 @@ inputs:
   GPG_KEY_PASSWORD:
     description: "Zepben GPG key password"
     required: true
+  POM_PATH:
+    description: "Path to pom.xml"
+    required: true
+    default: pom.xml
 
 runs:
   using: "composite"
@@ -32,7 +36,7 @@ runs:
     - run: |
         echo "$ZEPBEN_GPG_KEY" | base64 -d > zepben-gpg.key
         gpg2 --batch --import zepben-gpg.key
-        mvn clean deploy -f pom.xml -P release,ossrh -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key.id=$GPG_KEY_ID -Dgpg.key.password=$GPG_KEY_PASSWORD
+        mvn clean deploy -f $POM_PATH -P release,ossrh -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key.id=$GPG_KEY_ID -Dgpg.key.password=$GPG_KEY_PASSWORD
       shell: bash
       env:
         NEXUS_MAVEN_REPO: ${{ inputs.NEXUS_MAVEN_REPO }}
@@ -43,3 +47,4 @@ runs:
         OSSRH_PASSWORD: ${{ inputs.OSSRH_PASSWORD }}
         GPG_KEY_ID: ${{ inputs.GPG_KEY_ID }}
         GPG_KEY_PASSWORD: ${{ inputs.GPG_KEY_PASSWORD }}
+        POM_PATH: ${{ inputs.POM_PATH }}
