@@ -30,10 +30,19 @@ inputs:
     required: true
     default: pom.xml
 
+outputs:
+  artifact:
+    description: "The name of the artifact that is output"
+    value: ${{ steps.deploy.outputs.artifact }}
+  artifact-path:
+    description: "The path to the artifact"
+    value: ${{ steps.deploy.outputs.artifact-path }}
 runs:
   using: "composite"
   steps: 
-    - run: |
+    - name: Deploy to maven central
+      id: deploy
+      run: |
         echo "$ZEPBEN_GPG_KEY" | base64 -d > zepben-gpg.key
         gpg2 --batch --import zepben-gpg.key
         mvn clean deploy -f $POM_PATH -P release,ossrh -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key.id=$GPG_KEY_ID -Dgpg.key.password=$GPG_KEY_PASSWORD
