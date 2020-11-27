@@ -48,7 +48,7 @@ runs:
       run: |
         echo "$ZEPBEN_GPG_KEY" | base64 -d > zepben-gpg.key
         gpg2 --batch --import zepben-gpg.key
-        mvn clean deploy -f $POM_PATH -P 'release,ossrh,!zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key.id=$GPG_KEY_ID -Dgpg.key.password=$GPG_KEY_PASSWORD
+        mvn clean package -f $POM_PATH -P 'release,ossrh,!zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key.id=$GPG_KEY_ID -Dgpg.key.password=$GPG_KEY_PASSWORD
         artifactId=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/artifactId")
         version=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/version")
         artifact="${artifactId}-${version}.jar"
