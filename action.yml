@@ -37,6 +37,9 @@ outputs:
   artifact-path:
     description: "The path to the artifact"
     value: ${{ steps.deploy.outputs.artifact-path }}
+  version:
+    description: "The version of the arfifact"
+    value: ${{ steps.deploy.outputs.version }}
 runs:
   using: "composite"
   steps: 
@@ -51,6 +54,7 @@ runs:
         artifact="${artifactId}-${version}.jar"
         echo "::set-output name=artifact::$(echo $artifact)"
         echo "::set-output name=artifact-path::$(echo $(dirname $POM_PATH)/target/$artifact)"
+        echo "::set-output name=version::$(echo $version)"
       shell: bash
       env:
         NEXUS_MAVEN_REPO: ${{ inputs.NEXUS_MAVEN_REPO }}
