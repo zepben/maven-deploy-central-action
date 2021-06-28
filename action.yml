@@ -10,20 +10,31 @@ inputs:
   NEXUS_PASSWORD:
     default: unused
     required: true
+  NEXUS_RELEASE_URL:
+    default: unused
+    required: true
+  NEXUS_SNAPSHOT_URL:
+    default: unused
+    required: true
   ZEPBEN_GPG_KEY:
     description: "GPG key ID"
+    default: unused
     required: true
   OSSRH_USERNAME:
     description: "Maven central username"
+    default: unused
     required: true
   OSSRH_PASSWORD:
     description: "Maven central password"
+    default: unused
     required: true
   GPG_KEY_ID:
     description: "Zepben GPG key ID"
+    default: unused
     required: true
   GPG_KEY_PASSWORD:
     description: "Zepben GPG key password"
+    default: unused
     required: true
   POM_PATH:
     description: "Path to pom.xml"
@@ -57,7 +68,7 @@ runs:
           mvn clean deploy -f $POM_PATH -P 'release,ossrh,!zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key.id=$GPG_KEY_ID -Dgpg.key.password=$GPG_KEY_PASSWORD
         elif [ "$PROFILE" = "zepben-maven" ]
         then
-          mvn clean deploy -f $POM_PATH -P 'release,zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD
+          mvn clean deploy -f $POM_PATH -P 'release,zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dserver.release.url=$NEXUS_MAVEN_RELEASE -Dserver.snapshot.url=$NEXUS_MAVEN_SNAPSHOT
         fi
         artifactId=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/artifactId")
         version=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/version")
@@ -70,6 +81,8 @@ runs:
         NEXUS_MAVEN_REPO: ${{ inputs.NEXUS_MAVEN_REPO }}
         NEXUS_USERNAME: ${{ inputs.NEXUS_USERNAME }}
         NEXUS_PASSWORD: ${{ inputs.NEXUS_PASSWORD }}
+        NEXUS_RELEASE_URL: ${{ inputs.NEXUS_RELEASE_URL }}
+        NEXUS_SNAPSHOT_URL: ${{ inputs.NEXUS_SNAPSHOT_URL }}
         ZEPBEN_GPG_KEY: ${{ inputs.ZEPBEN_GPG_KEY }}
         OSSRH_USERNAME: ${{ inputs.OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ inputs.OSSRH_PASSWORD }}
