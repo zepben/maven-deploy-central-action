@@ -32,7 +32,7 @@ inputs:
   PROFILE:
     description: "Maven profile"
     required: true
-    default: ossrh
+    default: ossrh,!zepben-maven
 
 outputs:
   artifact:
