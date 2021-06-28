@@ -70,3 +70,4 @@ runs:
         GPG_KEY_ID: ${{ inputs.GPG_KEY_ID }}
         GPG_KEY_PASSWORD: ${{ inputs.GPG_KEY_PASSWORD }}
         POM_PATH: ${{ inputs.POM_PATH }}
+        PROFILE: ${{ inputs.PROFILE }}
