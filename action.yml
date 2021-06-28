@@ -57,7 +57,7 @@ runs:
           mvn clean deploy -f $POM_PATH -P 'release,ossrh,!zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key.id=$GPG_KEY_ID -Dgpg.key.password=$GPG_KEY_PASSWORD
         elif [ "$PROFILE" = "zepben-maven" ]
         then
-          mvn clean deploy -f $POM_PATH -P 'release,zepben-maven,!ossrh' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD
+          mvn clean deploy -f $POM_PATH -P 'release,zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD
         fi
         artifactId=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/artifactId")
         version=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/version")
