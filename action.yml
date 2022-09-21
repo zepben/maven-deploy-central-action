@@ -44,6 +44,10 @@ inputs:
     description: "Maven profile"
     required: true
     default: ossrh
+  SETTINGS_PATH:
+    description: "Path to maven settings.xml"
+    required: false
+    default: "$HOME/.m2/settings.xml"
 
 outputs:
   artifact:
@@ -65,10 +69,10 @@ runs:
         then
           echo "$ZEPBEN_GPG_KEY" | base64 -d > zepben-gpg.key
           gpg2 --batch --import zepben-gpg.key
-          mvn clean deploy -f $POM_PATH -P 'release,ossrh,!zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key.id=$GPG_KEY_ID -Dgpg.key.password=$GPG_KEY_PASSWORD
+          mvn clean deploy -f $POM_PATH -P 'release,ossrh,!zepben-maven' -s $SETTINGS_PATH -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key.id=$GPG_KEY_ID -Dgpg.key.password=$GPG_KEY_PASSWORD
         elif [ "$PROFILE" = "zepben-maven" ]
         then
-          mvn clean deploy -f $POM_PATH -P 'zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dserver.release.url=$NEXUS_RELEASE_URL -Dserver.snapshot.url=$NEXUS_SNAPSHOT_URL
+          mvn clean deploy -f $POM_PATH -P 'zepben-maven' -s $SETTINGS_PATH -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dserver.release.url=$NEXUS_RELEASE_URL -Dserver.snapshot.url=$NEXUS_SNAPSHOT_URL
         fi
         artifactId=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/artifactId")
         version=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/version")
