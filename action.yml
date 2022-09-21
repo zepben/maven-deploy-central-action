@@ -94,3 +94,4 @@ runs:
         GPG_KEY_PASSWORD: ${{ inputs.GPG_KEY_PASSWORD }}
         POM_PATH: ${{ inputs.POM_PATH }}
         PROFILE: ${{ inputs.PROFILE }}
+        SETTINGS_PATH: ${{ inputs.SETTINGS_PATH }}
