@@ -70,17 +70,17 @@ runs:
           gpg2 --batch --import zepben-gpg.key
           if [ -z $SETTINGS_PATH ]
           then
-            mvn clean deploy -f $POM_PATH -P 'release,ossrh,!zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.keyname=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
+            mvn clean deploy -f $POM_PATH -P 'release,ossrh,!zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
           else
-            mvn clean deploy -f $POM_PATH -P 'release,ossrh,!zepben-maven' -s $SETTINGS_PATH -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.keyname=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
+            mvn clean deploy -f $POM_PATH -P 'release,ossrh,!zepben-maven' -s $SETTINGS_PATH -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
           fi
         elif [ "$PROFILE" = "zepben-maven" ]
         then
           if [ -z $SETTINGS_PATH ]
           then
-            mvn clean deploy -f $POM_PATH -P 'zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dserver.release.url=$NEXUS_RELEASE_URL -Dserver.snapshot.url=$NEXUS_SNAPSHOT_URL -Dgpg.keyname=$GPG_KEY_ID 
+            mvn clean deploy -f $POM_PATH -P 'zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dserver.release.url=$NEXUS_RELEASE_URL -Dserver.snapshot.url=$NEXUS_SNAPSHOT_URL
           else
-            mvn clean deploy -f $POM_PATH -P 'zepben-maven' -s $SETTINGS_PATH -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dserver.release.url=$NEXUS_RELEASE_URL -Dserver.snapshot.url=$NEXUS_SNAPSHOT_URL -Dgpg.keyname=$GPG_KEY_ID 
+            mvn clean deploy -f $POM_PATH -P 'zepben-maven' -s $SETTINGS_PATH -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dserver.release.url=$NEXUS_RELEASE_URL -Dserver.snapshot.url=$NEXUS_SNAPSHOT_URL
           fi
         fi
         artifactId=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/artifactId")
