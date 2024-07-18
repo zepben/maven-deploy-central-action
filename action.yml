@@ -72,6 +72,7 @@ runs:
         then
           echo "$ZEPBEN_GPG_KEY" | base64 -d > zepben-gpg.key
           gpg --batch --import zepben-gpg.key
+          echo 'Setting up gpg agent config'
           echo 'allow-loopback-pinentry' >> ~/.gnupg/gpg-agent.conf
           echo 'pinentry-mode loopback' >> ~/.gnupg/gpg-agent.conf
           gpg-connect-agent reloadagent /bye
