@@ -73,6 +73,8 @@ runs:
       run: |
         # Use this to fix gpg
         echo "GPG_TTY=$(tty)" >> ${GITHUB_ENV}
+        export GPG_TTY=${env.GPG_TTY}
+        echo $GPG_TTY
  
         echo "Deploying using profile $PROFILE"
         # Run the stuff
@@ -117,4 +119,3 @@ runs:
         POM_PATH: ${{ inputs.POM_PATH }}
         PROFILE: ${{ inputs.PROFILE }}
         SETTINGS_PATH: ${{ inputs.SETTINGS_PATH }}
-        GPG_TTY: ${{ env.GTTY }}
