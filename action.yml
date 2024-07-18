@@ -69,9 +69,9 @@ runs:
 
     - name: Detect TTY
       run: |
-        TTY=$(tty)
-        echo "GPG_TTY=$TTY" >> ${GITHUB_ENV}
-        echo "Found $TTY"
+        GTTY=`tty`
+        echo "GPG_TTY=$GTTY" >> ${GITHUB_ENV}
+        echo "Found $GTTY"
       shell: bash
 
     - name: Deploy to maven central
@@ -122,4 +122,4 @@ runs:
         POM_PATH: ${{ inputs.POM_PATH }}
         PROFILE: ${{ inputs.PROFILE }}
         SETTINGS_PATH: ${{ inputs.SETTINGS_PATH }}
-        GPG_TTY: ${{ env.TTY }}
+        GPG_TTY: ${{ env.GTTY }}
