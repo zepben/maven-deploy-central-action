@@ -67,13 +67,16 @@ runs:
         path: /maven
         key: maven
 
+    - name: Detect TTY
+      run: |
+        TTY=$(tty)
+        echo "GPG_TTY=$TTY" >> ${GITHUB_ENV}
+        echo "Found $TTY"
+      shell: bash
+
     - name: Deploy to maven central
       id: deploy
       run: |
-        # Use this to fix gpg
-        echo "GPG_TTY=$(tty)" >> ${GITHUB_ENV}
- 
-        # Run the stuff
         if [ "$PROFILE" = "ossrh" ]
         then
           echo "$ZEPBEN_GPG_KEY" | base64 -d > zepben-gpg.key
@@ -119,3 +122,4 @@ runs:
         POM_PATH: ${{ inputs.POM_PATH }}
         PROFILE: ${{ inputs.PROFILE }}
         SETTINGS_PATH: ${{ inputs.SETTINGS_PATH }}
+        GPG_TTY: ${{ env.TTY }}
