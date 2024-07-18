@@ -64,6 +64,10 @@ runs:
     - name: Deploy to maven central
       id: deploy
       run: |
+        # Use this to fix gpg
+        export GPG_TTY=$(tty)
+
+        # Run the stuff
         if [ "$PROFILE" = "ossrh" ]
         then
           echo "$ZEPBEN_GPG_KEY" | base64 -d > zepben-gpg.key
