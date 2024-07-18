@@ -61,6 +61,12 @@ outputs:
 runs:
   using: "composite"
   steps: 
+    - name: Cache maven deps
+      uses: actions/cache@v3
+      with:
+        path: /maven
+        key: maven
+
     - name: Deploy to maven central
       id: deploy
       run: |
