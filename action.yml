@@ -72,10 +72,7 @@ runs:
       id: deploy
       run: |
         # Use this to fix gpg
-        echo "GPG_TTY=`tty`"
-        echo "GPG_TTY=$(tty)" >> ${GITHUB_ENV}
-        export GPG_TTY=${{ env.GPG_TTY }}
-        echo "exported $GPG_TTY"
+
  
         echo "Deploying using profile $PROFILE"
         # Run the stuff
@@ -83,6 +80,10 @@ runs:
         then
           echo "$ZEPBEN_GPG_KEY" | base64 -d > zepben-gpg.key
           gpg --batch --import zepben-gpg.key
+
+          echo "Update gpg conf"
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          ls ~/.gnupg/gpg.conf
 
           if [ -z $SETTINGS_PATH ]
           then
