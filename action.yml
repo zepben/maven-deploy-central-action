@@ -68,13 +68,6 @@ runs:
         key: maven
         save-always: true
 
-    - name: Detect TTY
-      run: |
-        GTTY=`tty`
-        echo "GPG_TTY=$GTTY" >> ${GITHUB_ENV}
-        echo "Found $GTTY"
-      shell: bash
-
     - name: Deploy to maven central
       id: deploy
       run: |
