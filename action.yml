@@ -65,7 +65,7 @@ runs:
       id: deploy
       run: |
         # Use this to fix gpg
-        export GPG_TTY=$(tty)
+        export GPG_TTY=`tty`
 
         # Run the stuff
         if [ "$PROFILE" = "ossrh" ]
