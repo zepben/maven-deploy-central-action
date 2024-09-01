@@ -105,9 +105,14 @@ runs:
         artifactId=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/artifactId")
         version=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/version")
         artifact="${artifactId}-${version}.jar"
-        echo "{artifact}={$artifact}" >> $GITHUB_OUTPUT
-        echo "{artifact-path}={$(echo $(dirname $POM_PATH)/target/$artifact)}" >> $GITHUB_OUTPUT
-        echo "{version}={$version}" >> $GITHUB_OUTPUT
+        artifact_path="$(dirname $POM_PATH)/target/$artifact"
+        echo "artifactId: $artifactId"
+        echo "version: $version"
+        echo "artifact: $artifact"
+        echo "artifact-path: $artifact_path"
+        echo "artifact=$artifact" >> $GITHUB_OUTPUT
+        echo "artifact-path=$artifact_path" >> $GITHUB_OUTPUT
+        echo "version=$version" >> $GITHUB_OUTPUT
       shell: bash
       env:
         NEXUS_MAVEN_REPO: ${{ inputs.NEXUS_MAVEN_REPO }}
