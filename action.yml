@@ -1,5 +1,5 @@
 name: 'Maven Deploy Central'
-description: 'Deploy java package to Maven central'
+description: 'Deploy java package to Maven Central'
 inputs:
   NEXUS_MAVEN_REPO:
     default: unused
@@ -20,12 +20,12 @@ inputs:
     description: "GPG key ID"
     default: unused
     required: true
-  OSSRH_USERNAME:
-    description: "Maven central username"
+  MAVEN_CENTRAL_USERNAME:
+    description: "Maven Central username"
     default: unused
     required: true
-  OSSRH_PASSWORD:
-    description: "Maven central password"
+  MAVEN_CENTRAL_PASSWORD:
+    description: "Maven Central password"
     default: unused
     required: true
   GPG_KEY_ID:
@@ -43,7 +43,7 @@ inputs:
   PROFILE:
     description: "Maven profile"
     required: true
-    default: ossrh
+    default: maven-central
   SETTINGS_PATH:
     description: "Path to maven settings.xml"
     required: false
@@ -68,7 +68,7 @@ runs:
         key: maven
         save-always: true
 
-    - name: Deploy to maven central
+    - name: Deploy to Maven Central 
       id: deploy
       run: |
         # Use this to fix gpg
@@ -76,7 +76,7 @@ runs:
  
         echo "Deploying using profile $PROFILE"
         # Run the stuff
-        if [ "$PROFILE" = "ossrh" ]
+        if [ "$PROFILE" = "maven-central" ]
         then
           echo "$ZEPBEN_GPG_KEY" | base64 -d > zepben-gpg.key
           gpg --batch --import zepben-gpg.key
@@ -88,9 +88,9 @@ runs:
           if [ -z $SETTINGS_PATH ]
           then
             # -B for batch mode to make progress spam go away hopefully
-            mvn clean deploy -B -f $POM_PATH -P 'release,ossrh,!zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
+            mvn clean deploy -B -f $POM_PATH -P 'release,maven-central,!zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dmaven-central.server.username=$MAVEN_CENTRAL_USERNAME -Dmaven-central.server.password=$MAVEN_CENTRAL_PASSWORD -Dgpg.key=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
           else
-            mvn clean deploy -B -f $POM_PATH -P 'release,ossrh,!zepben-maven' -s $SETTINGS_PATH -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dossrh.server.username=$OSSRH_USERNAME -Dossrh.server.password=$OSSRH_PASSWORD -Dgpg.key=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
+            mvn clean deploy -B -f $POM_PATH -P 'release,maven-central,!zepben-maven' -s $SETTINGS_PATH -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dmaven-central.server.username=$MAVEN_CENTRAL_USERNAME -Dmaven-central.server.password=$MAVEN_CENTRAL_PASSWORD -Dgpg.key=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
           fi
         elif [ "$PROFILE" = "zepben-maven" ]
         then
@@ -121,8 +121,8 @@ runs:
         NEXUS_RELEASE_URL: ${{ inputs.NEXUS_RELEASE_URL }}
         NEXUS_SNAPSHOT_URL: ${{ inputs.NEXUS_SNAPSHOT_URL }}
         ZEPBEN_GPG_KEY: ${{ inputs.ZEPBEN_GPG_KEY }}
-        OSSRH_USERNAME: ${{ inputs.OSSRH_USERNAME }}
-        OSSRH_PASSWORD: ${{ inputs.OSSRH_PASSWORD }}
+        MAVEN_CENTRAL_USERNAME: ${{ inputs.MAVEN_CENTRAL_USERNAME }}
+        MAVEN_CENTRAL_PASSWORD: ${{ inputs.MAVEN_CENTRAL_PASSWORD }}
         GPG_KEY_ID: ${{ inputs.GPG_KEY_ID }}
         GPG_KEY_PASSWORD: ${{ inputs.GPG_KEY_PASSWORD }}
         POM_PATH: ${{ inputs.POM_PATH }}
