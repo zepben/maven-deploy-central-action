@@ -88,9 +88,9 @@ runs:
           if [ -z $SETTINGS_PATH ]
           then
             # -B for batch mode to make progress spam go away hopefully
-            mvn clean deploy -B -f $POM_PATH -P 'release,maven-central,!zepben-maven' -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dmaven-central.server.username=$MAVEN_CENTRAL_USERNAME -Dmaven-central.server.password=$MAVEN_CENTRAL_PASSWORD -Dgpg.key=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
+            mvn clean deploy -B -f $POM_PATH -P 'release,maven-central,!zepben-maven' -Dadd.git.info=true -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dmaven-central.server.username=$MAVEN_CENTRAL_USERNAME -Dmaven-central.server.password=$MAVEN_CENTRAL_PASSWORD -Dgpg.key=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
           else
-            mvn clean deploy -B -f $POM_PATH -P 'release,maven-central,!zepben-maven' -s $SETTINGS_PATH -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dmaven-central.server.username=$MAVEN_CENTRAL_USERNAME -Dmaven-central.server.password=$MAVEN_CENTRAL_PASSWORD -Dgpg.key=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
+            mvn clean deploy -B -f $POM_PATH -P 'release,maven-central,!zepben-maven' -s $SETTINGS_PATH -Dadd.git.info=true -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dmaven-central.server.username=$MAVEN_CENTRAL_USERNAME -Dmaven-central.server.password=$MAVEN_CENTRAL_PASSWORD -Dgpg.key=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
           fi
         elif [ "$PROFILE" = "zepben-maven" ]
         then
