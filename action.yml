@@ -16,6 +16,21 @@ inputs:
   NEXUS_SNAPSHOT_URL:
     default: unused
     required: true
+  DEV_NEXUS_MAVEN_REPO:
+    default: unused
+    required: false
+  DEV_NEXUS_USERNAME:
+    default: unused
+    required: false
+  DEV_NEXUS_PASSWORD:
+    default: unused
+    required: false
+  DEV_NEXUS_RELEASE_URL:
+    default: unused
+    required: false
+  DEV_NEXUS_SNAPSHOT_URL:
+    default: unused
+    required: false
   ZEPBEN_GPG_KEY:
     description: "GPG key ID"
     default: unused
@@ -47,63 +62,38 @@ inputs:
   SETTINGS_PATH:
     description: "Path to maven settings.xml"
     required: false
+  DEV_ONLY:
+    description: If we should only build and deploy to dev nexus
+    default: "no"
 
 outputs:
   artifact:
     description: "The name of the artifact that is output"
-    value: ${{ steps.deploy.outputs.artifact }}
+    value: ${{ steps.meta.outputs.artifact }}
   artifact-path:
     description: "The path to the artifact"
-    value: ${{ steps.deploy.outputs.artifact-path }}
+    value: ${{ steps.meta.outputs.artifact-path }}
   version:
     description: "The version of the arfifact"
-    value: ${{ steps.deploy.outputs.version }}
+    value: ${{ steps.meta.outputs.version }}
 runs:
   using: "composite"
   steps: 
     - name: Cache maven deps
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /maven
         key: maven
-        save-always: true
 
-    - name: Deploy to Maven Central 
-      id: deploy
+    - name: Parse build params
+      id: meta
+      env:
+        POM_PATH: ${{ inputs.POM_PATH }}
+      shell: bash
       run: |
-        # Use this to fix gpg
-
- 
-        echo "Deploying using profile $PROFILE"
-        # Run the stuff
-        if [ "$PROFILE" = "maven-central" ]
-        then
-          echo "$ZEPBEN_GPG_KEY" | base64 -d > zepben-gpg.key
-          gpg --batch --import zepben-gpg.key
-
-          echo "Update gpg conf"
-          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
-          ls ~/.gnupg/gpg.conf
-
-          if [ -z $SETTINGS_PATH ]
-          then
-            # -B for batch mode to make progress spam go away hopefully
-            mvn clean deploy -B -f $POM_PATH -P 'release,maven-central,!zepben-maven' -Dadd.git.info=true -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dmaven-central.server.username=$MAVEN_CENTRAL_USERNAME -Dmaven-central.server.password=$MAVEN_CENTRAL_PASSWORD -Dgpg.key=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
-          else
-            mvn clean deploy -B -f $POM_PATH -P 'release,maven-central,!zepben-maven' -s $SETTINGS_PATH -Dadd.git.info=true -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dmaven-central.server.username=$MAVEN_CENTRAL_USERNAME -Dmaven-central.server.password=$MAVEN_CENTRAL_PASSWORD -Dgpg.key=$GPG_KEY_ID -Dgpg.password=$GPG_KEY_PASSWORD
-          fi
-        elif [ "$PROFILE" = "zepben-maven" ]
-        then
-          if [ -z $SETTINGS_PATH ]
-          then
-            # -B for batch mode to make progress spam go away hopefully
-            mvn clean deploy -B -f $POM_PATH -P 'zepben-maven' -Dadd.git.info=true -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dserver.release.url=$NEXUS_RELEASE_URL -Dserver.snapshot.url=$NEXUS_SNAPSHOT_URL
-          else
-            mvn clean deploy -B -f $POM_PATH -P 'zepben-maven' -s $SETTINGS_PATH -Dadd.git.info=true -Dserver.repo.url=$NEXUS_MAVEN_REPO -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dserver.release.url=$NEXUS_RELEASE_URL -Dserver.snapshot.url=$NEXUS_SNAPSHOT_URL
-          fi
-        fi
         artifactId=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/artifactId")
         version=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/version")
+        groupId=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/groupId")
         artifact="${artifactId}-${version}.jar"
         artifact_path="$(dirname $POM_PATH)/target/$artifact"
         echo "artifactId: $artifactId"
@@ -113,6 +103,33 @@ runs:
         echo "artifact=$artifact" >> $GITHUB_OUTPUT
         echo "artifact-path=$artifact_path" >> $GITHUB_OUTPUT
         echo "version=$version" >> $GITHUB_OUTPUT
+
+        params="-DgroupId=$groupId -DartifactId=$artifactId -Dversion=$version -Dfile=$artifact_path -DrepositoryId=zepben-maven"
+        echo "DEV_NEXUS_DEPLOYMENT_PARAMS=$params" >> ${GITHUB_ENV}
+
+        if [ ! -z $SETTINGS_PATH ]; then
+          echo "WITH_SETTINGS='-s $SETTINGS_PATH'" >> ${GITHUB_ENV}
+        fi
+
+    - name: Build Jar if only dev deployment requested
+      if: ${{ inputs.DEV_ONLY == 'yes' }}
+      env:
+        POM_PATH: ${{ inputs.POM_PATH }}
+        DEV_NEXUS_MAVEN_REPO: ${{ inputs.DEV_NEXUS_MAVEN_REPO }}
+        DEV_NEXUS_USERNAME: ${{ inputs.DEV_NEXUS_USERNAME }}
+        DEV_NEXUS_PASSWORD: ${{ inputs.DEV_NEXUS_PASSWORD }}
+        DEV_NEXUS_RELEASE_URL: ${{ inputs.DEV_NEXUS_RELEASE_URL }}
+        DEV_NEXUS_SNAPSHOT_URL: ${{ inputs.DEV_NEXUS_SNAPSHOT_URL }}
+      shell: bash
+      run: |
+        mvn clean package -B -f $POM_PATH -P 'zepben-maven' $WITH_SETTINGS \
+          -Dserver.repo.url=$DEV_NEXUS_MAVEN_REPO \
+          -Dserver.username=$DEV_NEXUS_USERNAME \
+          -Dserver.password=$DEV_NEXUS_PASSWORD \
+          -Dserver.release.url=$DEV_NEXUS_RELEASE_URL \
+          -Dserver.snapshot.url=$DEV_NEXUS_SNAPSHOT_URL
+
+    - name: Build and deploy
       shell: bash
       env:
         NEXUS_MAVEN_REPO: ${{ inputs.NEXUS_MAVEN_REPO }}
@@ -128,3 +145,62 @@ runs:
         POM_PATH: ${{ inputs.POM_PATH }}
         PROFILE: ${{ inputs.PROFILE }}
         SETTINGS_PATH: ${{ inputs.SETTINGS_PATH }}
+      if: ${{ inputs.DEV_ONLY != 'yes' }}
+      run: |
+        echo "Deploying using profile $PROFILE"
+        # Run the stuff
+
+        if [ "$PROFILE" = "maven-central" ]; then
+          echo "$ZEPBEN_GPG_KEY" | base64 -d > zepben-gpg.key
+          gpg --batch --import zepben-gpg.key
+
+          echo "Update gpg conf"
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          ls ~/.gnupg/gpg.conf
+
+          # -B for batch mode to make progress spam go away hopefully
+          # Build jar and deploy to maven-central
+          mvn clean deploy -B -f $POM_PATH -P 'release,maven-central,!zepben-maven' $WITH_SETTINGS \
+            -Dserver.repo.url=$NEXUS_MAVEN_REPO \
+            -Dserver.username=$NEXUS_USERNAME \
+            -Dserver.password=$NEXUS_PASSWORD \
+            -Dmaven-central.server.username=$MAVEN_CENTRAL_USERNAME \
+            -Dmaven-central.server.password=$MAVEN_CENTRAL_PASSWORD \
+            -Dgpg.key=$GPG_KEY_ID \
+            -Dgpg.password=$GPG_KEY_PASSWORD
+
+        elif [ "$PROFILE" = "zepben-maven" ]; then
+          # Build jar and deploy to Nexus
+          mvn clean deploy -B -f $POM_PATH -P 'zepben-maven' $WITH_SETTINGS \
+            -Dserver.repo.url=$NEXUS_MAVEN_REPO \
+            -Dserver.username=$NEXUS_USERNAME \
+            -Dserver.password=$NEXUS_PASSWORD \
+            -Dserver.release.url=$NEXUS_RELEASE_URL \
+            -Dserver.snapshot.url=$NEXUS_SNAPSHOT_URL
+        fi
+
+    - name: Deploy to Dev Nexus
+      shell: bash
+      env:
+        POM_PATH: ${{ inputs.POM_PATH }}
+        DEV_NEXUS_MAVEN_REPO: ${{ inputs.DEV_NEXUS_MAVEN_REPO }}
+        DEV_NEXUS_USERNAME: ${{ inputs.DEV_NEXUS_USERNAME }}
+        DEV_NEXUS_PASSWORD: ${{ inputs.DEV_NEXUS_PASSWORD }}
+        DEV_NEXUS_RELEASE_URL: ${{ inputs.DEV_NEXUS_RELEASE_URL }}
+        DEV_NEXUS_SNAPSHOT_URL: ${{ inputs.DEV_NEXUS_SNAPSHOT_URL }}
+      run: |
+        # If the artifact is present, deploy to Dev Nexus
+        if [ -f ${{ steps.meta.outputs.artifact-path }} ]; then
+          echo "====================================="
+          echo "::notice:: Deploying to dev-nexus! 🚀"
+          echo "====================================="
+          mvn deploy:deploy-file -B -f $POM_PATH -P 'zepben-maven' $WITH_SETTINGS \
+            $DEV_NEXUS_DEPLOYMENT_PARAMS -Durl=$DEV_NEXUS_RELEASE_URL \
+            -Dserver.repo.url=$DEV_NEXUS_MAVEN_REPO \
+            -Dserver.username=$DEV_NEXUS_USERNAME \
+            -Dserver.password=$DEV_NEXUS_PASSWORD \
+            -Dserver.release.url=$DEV_NEXUS_RELEASE_URL \
+            -Dserver.snapshot.url=$DEV_NEXUS_SNAPSHOT_URL
+        else
+        echo "::notice:: No artifact found, not deploying to dev-nexus! ❌"
+        fi
