@@ -83,7 +83,9 @@ runs:
       uses: actions/cache@v6
       with:
         path: /maven
-        key: maven
+        key: maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          maven-
 
     - name: Parse build params
       id: meta
