@@ -105,7 +105,7 @@ runs:
         echo "artifact=$artifact" >> $GITHUB_OUTPUT
         echo "artifact-path=$artifact_path" >> $GITHUB_OUTPUT
         echo "version=$version" >> $GITHUB_OUTPUT
-        echo "group=$group" >> $GITHUB_OUTPUT
+        echo "groupId=$groupId" >> $GITHUB_OUTPUT
 
         params="-DgroupId=$groupId -DartifactId=$artifactId -Dversion=$version -Dfile=$artifact_path -DrepositoryId=zepben-maven"
         echo "DEV_NEXUS_DEPLOYMENT_PARAMS=$params" >> ${GITHUB_ENV}
@@ -207,12 +207,3 @@ runs:
         else
         echo "::notice:: No artifact found, not deploying to dev-nexus! ❌"
         fi
-
-    - name: Clean cache before saving
-      shell: bash
-      run: |
-        groupPath=$(echo ${{ steps.meta.outputs.groupId }} | sed -e "s/\./\\/g")
-        find /maven/repository -path "*/$groupPath/*" -type d -exec -print
-        # find /maven/repository -path "*/$groupPath/*" -type d -exec rm -rf {} + 2>/dev/null || true
-
-
