@@ -214,6 +214,4 @@ runs:
       run: |
         groupPath=$(echo ${{ steps.meta.outputs.groupId }} | sed -e 's$\.$/$g')
         find /maven -path "*/$groupPath/${{ steps.meta.outputs.artifactId }}/*" -type d -print
-        # find /maven/repository -path "*/$groupPath/*" -type d -exec rm -rf {} + 2>/dev/null || true
-
-
+        find /maven -path "*/$groupPath/${{ steps.meta.outputs.artifactId }}/*" -type d -exec rm -rf {} + 2>/dev/null || true
