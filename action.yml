@@ -83,7 +83,9 @@ runs:
       uses: actions/cache@v6
       with:
         path: /maven
-        key: maven
+        key: maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          maven-
 
     - name: Parse build params
       id: meta
@@ -103,6 +105,8 @@ runs:
         echo "artifact=$artifact" >> $GITHUB_OUTPUT
         echo "artifact-path=$artifact_path" >> $GITHUB_OUTPUT
         echo "version=$version" >> $GITHUB_OUTPUT
+        echo "groupId=$groupId" >> $GITHUB_OUTPUT
+        echo "artifactId=$artifactId" >> $GITHUB_OUTPUT
 
         params="-DgroupId=$groupId -DartifactId=$artifactId -Dversion=$version -Dfile=$artifact_path -DrepositoryId=zepben-maven"
         echo "DEV_NEXUS_DEPLOYMENT_PARAMS=$params" >> ${GITHUB_ENV}
@@ -204,3 +208,10 @@ runs:
         else
         echo "::notice:: No artifact found, not deploying to dev-nexus! ❌"
         fi
+
+    - name: Clean cache before saving
+      shell: bash
+      run: |
+        groupPath=$(echo ${{ steps.meta.outputs.groupId }} | sed -e 's$\.$/$g')
+        find /maven -path "*/$groupPath/${{ steps.meta.outputs.artifactId }}/*" -type d -print
+        find /maven -path "*/$groupPath/${{ steps.meta.outputs.artifactId }}/*" -type d -exec rm -rf {} + 2>/dev/null || true
