@@ -215,7 +215,7 @@ runs:
       continue-on-error: true
 
     - name: Check dev-nexus deployment
-      if: $ {{ steps.dev-nexus.outcome != 'success' }}
+      if: ${{ steps.dev-nexus.outcome != 'success' }}
       run: |
         echo "::warning:: ❌ Something went wrong in the Deploy to Dev Nexus step, check it out"
 
