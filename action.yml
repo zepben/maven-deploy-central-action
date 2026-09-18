@@ -115,7 +115,7 @@ runs:
           echo "WITH_SETTINGS='-s $SETTINGS_PATH'" >> ${GITHUB_ENV}
         fi
 
-    - name: Build Jar if only dev deployment requested
+    - name: Deploy to dev-nexus if only dev deployment requested
       if: ${{ inputs.DEV_ONLY == 'yes' }}
       env:
         POM_PATH: ${{ inputs.POM_PATH }}
@@ -126,7 +126,7 @@ runs:
         DEV_NEXUS_SNAPSHOT_URL: ${{ inputs.DEV_NEXUS_SNAPSHOT_URL }}
       shell: bash
       run: |
-        mvn clean package -B -f $POM_PATH -P 'zepben-maven' $WITH_SETTINGS \
+        mvn clean deploy -B -f $POM_PATH -P 'zepben-maven' $WITH_SETTINGS \
           -Dserver.repo.url=$DEV_NEXUS_MAVEN_REPO \
           -Dserver.username=$DEV_NEXUS_USERNAME \
           -Dserver.password=$DEV_NEXUS_PASSWORD \
@@ -183,8 +183,12 @@ runs:
             -Dserver.snapshot.url=$NEXUS_SNAPSHOT_URL
         fi
 
+    # We only need to "double deploy" when we
+    # deploy to real Nexus or Central, ie non-dev-only
     - name: Deploy to Dev Nexus
+      id: dev-nexus
       shell: bash
+      if: ${{ inputs.DEV_ONLY != 'yes' }}
       env:
         POM_PATH: ${{ inputs.POM_PATH }}
         DEV_NEXUS_MAVEN_REPO: ${{ inputs.DEV_NEXUS_MAVEN_REPO }}
@@ -208,6 +212,12 @@ runs:
         else
         echo "::notice:: No artifact found, not deploying to dev-nexus! ❌"
         fi
+      continue-on-error: true
+
+    - name: Check dev-nexus deployment
+      if: $ {{ steps.dev-nexus.outcome != 'success' }}
+      run: |
+        echo "::warning:: ❌ Something went wrong in the Deploy to Dev Nexus step, check it out"
 
     - name: Clean cache before saving
       shell: bash
