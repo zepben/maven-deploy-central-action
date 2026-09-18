@@ -216,6 +216,7 @@ runs:
 
     - name: Check dev-nexus deployment
       if: ${{ steps.dev-nexus.outcome != 'success' }}
+      shell: bash
       run: |
         echo "::warning:: ❌ Something went wrong in the Deploy to Dev Nexus step, check it out"
 
