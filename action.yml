@@ -200,7 +200,7 @@ runs:
         # If the artifact is present, deploy to Dev Nexus
         if [ -f ${{ steps.meta.outputs.artifact-path }} ]; then
           echo "====================================="
-          echo "::notice:: Deploying to dev-nexus! 🚀"
+          echo "::notice:: Deploying '${{ steps.meta.outputs.artifact }}' to dev-nexus! 🚀"
           echo "====================================="
           mvn deploy:deploy-file -B -f $POM_PATH -P 'zepben-maven' $WITH_SETTINGS \
             $DEV_NEXUS_DEPLOYMENT_PARAMS -Durl=$DEV_NEXUS_RELEASE_URL \
