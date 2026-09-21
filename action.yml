@@ -133,6 +133,12 @@ runs:
           -Dserver.release.url=$DEV_NEXUS_RELEASE_URL \
           -Dserver.snapshot.url=$DEV_NEXUS_SNAPSHOT_URL
 
+        if [ -f ${{ steps.meta.outputs.artifact-path }} ]; then
+          echo "=========================================================================="
+          echo "::notice:: Deploying '${{ steps.meta.outputs.artifact }}' to dev-nexus! 🚀"
+          echo "=========================================================================="
+        fi
+
     - name: Build and deploy
       shell: bash
       env:
@@ -199,9 +205,9 @@ runs:
       run: |
         # If the artifact is present, deploy to Dev Nexus
         if [ -f ${{ steps.meta.outputs.artifact-path }} ]; then
-          echo "====================================="
+          echo "=========================================================================="
           echo "::notice:: Deploying '${{ steps.meta.outputs.artifact }}' to dev-nexus! 🚀"
-          echo "====================================="
+          echo "=========================================================================="
           mvn deploy:deploy-file -B -f $POM_PATH -P 'zepben-maven' $WITH_SETTINGS \
             $DEV_NEXUS_DEPLOYMENT_PARAMS -Durl=$DEV_NEXUS_RELEASE_URL \
             -Dserver.repo.url=$DEV_NEXUS_MAVEN_REPO \
