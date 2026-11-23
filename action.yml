@@ -108,7 +108,7 @@ runs:
         echo "groupId=$groupId" >> $GITHUB_OUTPUT
         echo "artifactId=$artifactId" >> $GITHUB_OUTPUT
 
-        params="-DgroupId=$groupId -DartifactId=$artifactId -Dversion=$version -Dfile=$artifact_path -DrepositoryId=zepben-maven"
+        params="-DgroupId=$groupId -DartifactId=$artifactId -Dversion=$version -Dfile=$(dirname (realname $artifact_path)) -DrepositoryId=zepben-maven"
         echo "DEV_NEXUS_DEPLOYMENT_PARAMS=$params" >> ${GITHUB_ENV}
 
         if [ ! -z $SETTINGS_PATH ]; then
