@@ -108,8 +108,8 @@ runs:
         echo "groupId=$groupId" >> $GITHUB_OUTPUT
         echo "artifactId=$artifactId" >> $GITHUB_OUTPUT
 
-        real_artifact_path=$(realpath $artifact_path)
-        params="-DgroupId=$groupId -DartifactId=$artifactId -Dversion=$version -Dfile=$(dirname $real_artifact_path) -DrepositoryId=zepben-maven"
+        real_artifact_path="$(dirname $(realpath POM_PATH))/target/$artifact"
+        params="-DgroupId=$groupId -DartifactId=$artifactId -Dversion=$version -Dfile=$real_artifact_path -DrepositoryId=zepben-maven"
         echo "DEV_NEXUS_DEPLOYMENT_PARAMS=$params" >> ${GITHUB_ENV}
 
         if [ ! -z $SETTINGS_PATH ]; then
