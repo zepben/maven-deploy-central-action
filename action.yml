@@ -98,17 +98,18 @@ runs:
         groupId=$(xmlstarlet pyx $POM_PATH | grep -v ^A | xmlstarlet p2x | xmlstarlet sel -t -v "/project/groupId")
         artifact="${artifactId}-${version}.jar"
         artifact_path="$(dirname $POM_PATH)/target/$artifact"
+        real_artifact_path="$(dirname $(realpath POM_PATH))/target/$artifact"
         echo "artifactId: $artifactId"
         echo "version: $version"
         echo "artifact: $artifact"
         echo "artifact-path: $artifact_path"
         echo "artifact=$artifact" >> $GITHUB_OUTPUT
         echo "artifact-path=$artifact_path" >> $GITHUB_OUTPUT
+        echo "real_artifact-path=$real_artifact_path" >> $GITHUB_OUTPUT
         echo "version=$version" >> $GITHUB_OUTPUT
         echo "groupId=$groupId" >> $GITHUB_OUTPUT
         echo "artifactId=$artifactId" >> $GITHUB_OUTPUT
 
-        real_artifact_path="$(dirname $(realpath POM_PATH))/target/$artifact"
         params="-DgroupId=$groupId -DartifactId=$artifactId -Dversion=$version -Dfile=$real_artifact_path -DrepositoryId=zepben-maven"
         echo "DEV_NEXUS_DEPLOYMENT_PARAMS=$params" >> ${GITHUB_ENV}
 
