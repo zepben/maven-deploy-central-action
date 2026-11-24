@@ -105,7 +105,7 @@ runs:
         echo "artifact-path: $artifact_path"
         echo "artifact=$artifact" >> $GITHUB_OUTPUT
         echo "artifact-path=$artifact_path" >> $GITHUB_OUTPUT
-        echo "real_artifact-path=$real_artifact_path" >> $GITHUB_OUTPUT
+        echo "real_artifact_path=$real_artifact_path" >> $GITHUB_OUTPUT
         echo "version=$version" >> $GITHUB_OUTPUT
         echo "groupId=$groupId" >> $GITHUB_OUTPUT
         echo "artifactId=$artifactId" >> $GITHUB_OUTPUT
